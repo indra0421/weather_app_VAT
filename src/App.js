@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 
 const api = {
-  key: "",
+  key: process.env.REACT_APP_WEATHER_API_KEY ,
   base: "https://api.openweathermap.org/data/2.5/"
 }
+
+
 function App() {
   const [query, setQuery] = useState('');
   const [weather, setWeather] = useState({});
 
+  
   const search = evt => {
 
     fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
@@ -18,6 +21,8 @@ function App() {
         setQuery('');
         console.log(result);
       });
+
+
 
   }
 const dateBuilder = (d) => {
@@ -42,7 +47,7 @@ const dateBuilder = (d) => {
             placeholder="Search your cities here..."
             onChange={e => setQuery(e.target.value)}
             value={query}
-            onKeyPress={(e) => e.key == 'Enter' ? search() : null}
+            onClick={(e) => e.key === 'Enter' ? search() : null}
           />
           <button onClick={search} title="Search"><SearchIcon className='search_icon' /></button>
 
@@ -52,12 +57,51 @@ const dateBuilder = (d) => {
             <div className="location-box">
               <div className="location">{weather.name}, {weather.sys.country}</div>
               <div className="date">{dateBuilder(new Date())}</div>
+            <div className="timezone">
+            {(() => {
+    // Destructure data from your weather object
+
+    const timezone = weather.timezone; // offset in seconds
+
+   
+    // Convert timezone offset to readable UTC string (e.g. +5h 30m)
+    const hours = Math.floor(timezone / 3600);
+    const minutes = Math.floor((timezone % 3600) / 60);
+    const sign = timezone >= 0 ? '+' : '-';
+
+    return (
+      <>
+     
+        <p>🕒 Timezone: UTC {sign}{Math.abs(hours)}h {Math.abs(minutes)}m</p>
+      </>
+    );
+  })()} </div>
             </div>
             <div className="weather-box">
               <div className="temp">
                 {Math.round(weather.main.temp)}°c
+                
+                
               </div>
-              <div className="weather">{weather.weather[0].main}</div>
+              
+               <div className="feels-like">
+
+          
+              <h3> Feels Like : {Math.round(weather.main.feels_like)}°c </h3>
+              </div>
+              <div className="wind">
+
+              
+              <p> <img width="30" height="30" src="https://img.icons8.com/ios/50/wind--v1.png" alt="wind--v1"/> {weather.wind.speed} mph</p>
+              </div>
+               <div className="humidity">
+
+              
+              <p><img width="30" height="30" src="https://img.icons8.com/badges/48/humidity.png" alt="humidity"/>{weather.main.humidity} %</p>
+              </div>
+              <div className="weather">
+
+                {`${weather.weather[0].main}`}</div>
             </div>
           </div>
         ) : ('')}
